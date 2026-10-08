@@ -1,0 +1,29 @@
+{
+  "name": "n8n-nodes-mail-bridge",
+  "version": "1.0.2",
+  "description": "Copy original RFC822 messages between IMAP mailboxes in n8n, then archive and expire the source copies",
+  "license": "MIT",
+  "keywords": ["n8n-community-node-package", "n8n", "imap", "email", "mail", "icloud", "gmx"],
+  "homepage": "https://github.com/MephistoJB/n8n-nodes-mail-bridge#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/MephistoJB/n8n-nodes-mail-bridge.git"
+  },
+  "bugs": {
+    "url": "https://github.com/MephistoJB/n8n-nodes-mail-bridge/issues"
+  },
+  "files": ["credentials", "nodes", "index.js", "README.md", "LICENSE"],
+  "scripts": {
+    "check": "node --check index.js && node --check nodes/MailBridge.node.js && node --check credentials/ICloudCredentialsApi.credentials.js"
+  },
+  "main": "index.js",
+  "engines": { "node": ">=20" },
+  "n8n": {
+    "n8nNodesApiVersion": 1,
+    "credentials": ["credentials/ICloudCredentialsApi.credentials.js"],
+    "nodes": ["nodes/MailBridge.node.js"]
+  },
+  "dependencies": { "imapflow": "^1.0.170" },
+  "peerDependencies": { "n8n-workflow": "*" },
+  "publishConfig": { "access": "public" }
+}
