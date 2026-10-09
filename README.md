@@ -7,6 +7,11 @@ to an archive mailbox and remove archived messages after a retention period.
 It is useful when ordinary forwarding is unsuitable because it changes the
 message representation, headers, sender, or attachments.
 
+If iCloud rejects a message as too large, the node creates an attachmentless
+copy with ` (attachment to big)` appended to its subject and moves the original
+source message into the `tobigforicloud` mailbox. Other messages continue to
+transfer normally.
+
 ## Installation
 
 In n8n, open **Settings → Community nodes**, install
