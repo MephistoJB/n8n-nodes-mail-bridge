@@ -1,6 +1,6 @@
 {
   "name": "n8n-nodes-mail-bridge",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "Copy original RFC822 messages between IMAP mailboxes in n8n, then archive and expire the source copies",
   "license": "MIT",
   "keywords": ["n8n-community-node-package", "n8n", "imap", "email", "mail", "icloud", "gmx"],
