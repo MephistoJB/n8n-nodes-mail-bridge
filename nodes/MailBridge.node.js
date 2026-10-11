@@ -2,9 +2,32 @@ const { ImapFlow } = require('imapflow');
 const { NodeOperationError } = require('n8n-workflow');
 
 const ICLOUD_IMAP_HOST = 'imap.mail.me.com';
+const TRANSIENT_CONNECTION_ERROR_CODES = new Set(['EAI_AGAIN', 'ECONNREFUSED', 'ECONNRESET', 'EHOSTUNREACH', 'ENETUNREACH', 'EPIPE', 'ETIMEDOUT']);
 
 function client(options) { return new ImapFlow({ ...options, logger: false }); }
 async function close(client) { if (client && client.authenticated) await client.logout().catch(() => undefined); }
+function delay(milliseconds) { return new Promise((resolve) => setTimeout(resolve, milliseconds)); }
+
+function isTransientConnectionError(error) {
+	return TRANSIENT_CONNECTION_ERROR_CODES.has(error?.code) || TRANSIENT_CONNECTION_ERROR_CODES.has(error?.cause?.code);
+}
+
+async function connectWithRetry(createClient, maxAttempts = 4) {
+	let lastError;
+	for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+		const mailClient = createClient();
+		try {
+			await mailClient.connect();
+			return mailClient;
+		} catch (error) {
+			lastError = error;
+			await close(mailClient);
+			if (!isTransientConnectionError(error) || attempt === maxAttempts) throw error;
+			await delay(1000 * (2 ** (attempt - 1)));
+		}
+	}
+	throw lastError;
+}
 
 function headerValue(headers, name) {
 	const match = headers.match(new RegExp(`^${name}:\\s*([^\\r\\n]*(?:\\r?\\n[ \\t][^\\r\\n]*)*)`, 'im'));
@@ -69,10 +92,10 @@ class MailBridge {
 		const results = [];
 		const gmxCredentials = await this.getCredentials('imap');
 		const iCloudCredentials = await this.getCredentials('iCloudCredentials');
-		const gmx = client({ host: gmxCredentials.host, port: Number(gmxCredentials.port), secure: gmxCredentials.secure !== false, auth: { user: gmxCredentials.user || gmxCredentials.username, pass: gmxCredentials.password } });
+		let gmx;
 		let iCloud;
 		try {
-			await gmx.connect();
+			gmx = await connectWithRetry(() => client({ host: gmxCredentials.host, port: Number(gmxCredentials.port), secure: gmxCredentials.secure !== false, auth: { user: gmxCredentials.user || gmxCredentials.username, pass: gmxCredentials.password } }));
 			for (let itemIndex = 0; itemIndex < this.getInputData().length; itemIndex++) {
 				const mode = this.getNodeParameter('mode', itemIndex);
 				const archiveMailbox = this.getNodeParameter('archiveMailbox', itemIndex);
@@ -90,8 +113,7 @@ class MailBridge {
 					await gmx.mailboxOpen(sourceMailbox);
 					const found = await gmx.search({ all: true }, { uid: true });
 					const uids = (Array.isArray(found) ? found : []).slice(-transferLimit);
-					iCloud = client({ host: ICLOUD_IMAP_HOST, port: 993, secure: true, auth: { user: iCloudCredentials.mailAddress || iCloudCredentials.appleId, pass: iCloudCredentials.password } });
-					await iCloud.connect();
+					iCloud = await connectWithRetry(() => client({ host: ICLOUD_IMAP_HOST, port: 993, secure: true, auth: { user: iCloudCredentials.mailAddress || iCloudCredentials.appleId, pass: iCloudCredentials.password } }));
 					await iCloud.mailboxOpen(destinationMailbox);
 					for (const uid of uids) {
 						let message;

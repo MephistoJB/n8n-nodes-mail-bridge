@@ -12,6 +12,9 @@ copy with ` (attachment to big)` appended to its subject and moves the original
 source message into the `tobigforicloud` mailbox. Other messages continue to
 transfer normally.
 
+Temporary DNS and IMAP connection failures are retried up to four times with
+short exponential backoff before the workflow reports an error.
+
 ## Installation
 
 In n8n, open **Settings → Community nodes**, install
