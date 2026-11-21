@@ -1,9 +1,17 @@
 {
   "name": "n8n-nodes-mail-bridge",
-  "version": "1.0.6",
+  "version": "1.1.0",
   "description": "Copy original RFC822 messages between IMAP mailboxes in n8n, then archive and expire the source copies",
   "license": "MIT",
-  "keywords": ["n8n-community-node-package", "n8n", "imap", "email", "mail", "icloud", "gmx"],
+  "keywords": [
+    "n8n-community-node-package",
+    "n8n",
+    "imap",
+    "email",
+    "mail",
+    "icloud",
+    "gmx"
+  ],
   "homepage": "https://github.com/MephistoJB/n8n-nodes-mail-bridge#readme",
   "repository": {
     "type": "git",
@@ -12,18 +20,40 @@
   "bugs": {
     "url": "https://github.com/MephistoJB/n8n-nodes-mail-bridge/issues"
   },
-  "files": ["credentials", "nodes", "index.js", "README.md", "LICENSE"],
+  "files": [
+    "credentials",
+    "nodes",
+    "index.js",
+    "README.md",
+    "LICENSE",
+    "lib"
+  ],
   "scripts": {
-    "check": "node --check index.js && node --check nodes/MailBridge.node.js && node --check credentials/ICloudCredentialsApi.credentials.js"
+    "check": "node --check index.js && node --check nodes/MailBridge.node.js && node --check credentials/ICloudCredentialsApi.credentials.js && node --check lib/offload.js && node --check lib/transfer.js && node --check lib/connection.js",
+    "test": "node --test test/*.test.js"
   },
   "main": "index.js",
-  "engines": { "node": ">=20" },
+  "engines": {
+    "node": ">=20"
+  },
   "n8n": {
     "n8nNodesApiVersion": 1,
-    "credentials": ["credentials/ICloudCredentialsApi.credentials.js"],
-    "nodes": ["nodes/MailBridge.node.js"]
+    "credentials": [
+      "credentials/ICloudCredentialsApi.credentials.js"
+    ],
+    "nodes": [
+      "nodes/MailBridge.node.js"
+    ]
   },
-  "dependencies": { "imapflow": "^1.0.170" },
-  "peerDependencies": { "n8n-workflow": "*" },
-  "publishConfig": { "access": "public" }
+  "dependencies": {
+    "imapflow": "1.7.8",
+    "mailparser": "3.9.4",
+    "nodemailer": "8.0.2"
+  },
+  "peerDependencies": {
+    "n8n-workflow": "*"
+  },
+  "publishConfig": {
+    "access": "public"
+  }
 }

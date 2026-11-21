@@ -25,7 +25,7 @@ jobs:
         run: npm install --global npm@11.21.0
 
       - name: Verify source files
-        run: npm run check
+        run: npm ci --ignore-scripts --legacy-peer-deps && npm run check && npm test
 
       - name: Verify npm package contents
         run: npm pack --dry-run
