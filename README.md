@@ -45,7 +45,8 @@ Exception folders are never included in this node's retention cleanup.
 
 Reduced copies have a deterministic Message-ID and `X-N8N-Mail-Import-Key` derived
 from account, destination and complete original bytes. A retry checks this key
-before creating another reduced copy. The original Message-ID is retained in
+in the standard Message-ID header before creating another reduced copy. Custom
+X-* header indexing is not required. The original Message-ID is retained in
 `X-Original-Message-ID`. This deduplication guarantee concerns reduced copies;
 ordinary unchanged RFC822 appends retain the existing append/move crash window.
 

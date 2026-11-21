@@ -88,11 +88,11 @@ function fakeSource(messages, options = {}) {
 
 function fakeTarget(options = {}) {
   return { appends: [], keys: new Set(),
-    async search(query) { return this.keys.has(query.header[KEY_HEADER]) ? [42] : []; },
+    async search(query) { const id = query.header['Message-ID']; assert.ok(id, 'deduplication must use the standard Message-ID header'); return this.keys.has(id) ? [42] : []; },
     async append(mailbox, raw, flags, date) {
       if (options.fail || (options.rejectOriginal && raw.length > 6000)) { const e = new Error('Command failed'); e.responseText = options.fail || 'Cannot upload message, TOOBIG'; throw e; }
       const parsed = await simpleParser(raw);
-      const key = parsed.headers.get(KEY_HEADER.toLowerCase()); if (key) this.keys.add(key);
+      if (parsed.messageId) this.keys.add(parsed.messageId);
       this.appends.push({ mailbox, raw: Buffer.from(raw), flags, date }); return { uid: this.appends.length };
     },
   };

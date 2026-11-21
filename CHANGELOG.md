@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.1.1
+
+- Search for existing reduced copies by their deterministic standard Message-ID.
+  iCloud does not reliably return matches for custom X-* header searches.
+- Add regression coverage requiring standard-header lookup during retry and backfill.
+
 ## 1.1.0
 
 - Transfer oversized messages without attachments and prefix the subject with `[Anhang ausgelagert]`.
